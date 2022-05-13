@@ -17,8 +17,6 @@ export class Account extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("signerId", Value.fromString(""));
-    this.set("swap", Value.fromStringArray(new Array(0)));
-    this.set("liquidity", Value.fromStringArray(new Array(0)));
   }
 
   save(): void {
@@ -56,8 +54,8 @@ export class Account extends Entity {
     this.set("signerId", Value.fromString(value));
   }
 
-  get blockTimestamp(): BigInt | null {
-    let value = this.get("blockTimestamp");
+  get timestamp(): BigInt | null {
+    let value = this.get("timestamp");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -65,30 +63,12 @@ export class Account extends Entity {
     }
   }
 
-  set blockTimestamp(value: BigInt | null) {
+  set timestamp(value: BigInt | null) {
     if (!value) {
-      this.unset("blockTimestamp");
+      this.unset("timestamp");
     } else {
-      this.set("blockTimestamp", Value.fromBigInt(<BigInt>value));
+      this.set("timestamp", Value.fromBigInt(<BigInt>value));
     }
-  }
-
-  get swap(): Array<string> {
-    let value = this.get("swap");
-    return value!.toStringArray();
-  }
-
-  set swap(value: Array<string>) {
-    this.set("swap", Value.fromStringArray(value));
-  }
-
-  get liquidity(): Array<string> {
-    let value = this.get("liquidity");
-    return value!.toStringArray();
-  }
-
-  set liquidity(value: Array<string>) {
-    this.set("liquidity", Value.fromStringArray(value));
   }
 }
 
@@ -96,6 +76,10 @@ export class Swap extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
+
+    this.set("transaction", Value.fromString(""));
+    this.set("timestamp", Value.fromBigInt(BigInt.zero()));
+    this.set("pair", Value.fromString(""));
   }
 
   save(): void {
@@ -124,23 +108,6 @@ export class Swap extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get output(): string | null {
-    let value = this.get("output");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set output(value: string | null) {
-    if (!value) {
-      this.unset("output");
-    } else {
-      this.set("output", Value.fromString(<string>value));
-    }
-  }
-
   get action(): string | null {
     let value = this.get("action");
     if (!value || value.kind == ValueKind.NULL) {
@@ -158,42 +125,35 @@ export class Swap extends Entity {
     }
   }
 
-  get blockTimestamp(): BigInt | null {
-    let value = this.get("blockTimestamp");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+  get transaction(): string {
+    let value = this.get("transaction");
+    return value!.toString();
   }
 
-  set blockTimestamp(value: BigInt | null) {
-    if (!value) {
-      this.unset("blockTimestamp");
-    } else {
-      this.set("blockTimestamp", Value.fromBigInt(<BigInt>value));
-    }
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
   }
 
-  get firstTokenAmount(): BigInt | null {
-    let value = this.get("firstTokenAmount");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value!.toBigInt();
   }
 
-  set firstTokenAmount(value: BigInt | null) {
-    if (!value) {
-      this.unset("firstTokenAmount");
-    } else {
-      this.set("firstTokenAmount", Value.fromBigInt(<BigInt>value));
-    }
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
   }
 
-  get firstToken(): string | null {
-    let value = this.get("firstToken");
+  get pair(): string {
+    let value = this.get("pair");
+    return value!.toString();
+  }
+
+  set pair(value: string) {
+    this.set("pair", Value.fromString(value));
+  }
+
+  get sender(): string | null {
+    let value = this.get("sender");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -201,33 +161,16 @@ export class Swap extends Entity {
     }
   }
 
-  set firstToken(value: string | null) {
+  set sender(value: string | null) {
     if (!value) {
-      this.unset("firstToken");
+      this.unset("sender");
     } else {
-      this.set("firstToken", Value.fromString(<string>value));
+      this.set("sender", Value.fromString(<string>value));
     }
   }
 
-  get secondTokenAmount(): BigInt | null {
-    let value = this.get("secondTokenAmount");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set secondTokenAmount(value: BigInt | null) {
-    if (!value) {
-      this.unset("secondTokenAmount");
-    } else {
-      this.set("secondTokenAmount", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
-  get secondToken(): string | null {
-    let value = this.get("secondToken");
+  get from(): string | null {
+    let value = this.get("from");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -235,11 +178,207 @@ export class Swap extends Entity {
     }
   }
 
-  set secondToken(value: string | null) {
+  set from(value: string | null) {
     if (!value) {
-      this.unset("secondToken");
+      this.unset("from");
     } else {
-      this.set("secondToken", Value.fromString(<string>value));
+      this.set("from", Value.fromString(<string>value));
+    }
+  }
+
+  get amount0In(): BigInt | null {
+    let value = this.get("amount0In");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set amount0In(value: BigInt | null) {
+    if (!value) {
+      this.unset("amount0In");
+    } else {
+      this.set("amount0In", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get amount1In(): BigInt | null {
+    let value = this.get("amount1In");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set amount1In(value: BigInt | null) {
+    if (!value) {
+      this.unset("amount1In");
+    } else {
+      this.set("amount1In", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get amount0Out(): BigInt | null {
+    let value = this.get("amount0Out");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set amount0Out(value: BigInt | null) {
+    if (!value) {
+      this.unset("amount0Out");
+    } else {
+      this.set("amount0Out", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get amount1Out(): BigInt | null {
+    let value = this.get("amount1Out");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set amount1Out(value: BigInt | null) {
+    if (!value) {
+      this.unset("amount1Out");
+    } else {
+      this.set("amount1Out", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get to(): string | null {
+    let value = this.get("to");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set to(value: string | null) {
+    if (!value) {
+      this.unset("to");
+    } else {
+      this.set("to", Value.fromString(<string>value));
+    }
+  }
+}
+
+export class Transaction extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("timestamp", Value.fromBigInt(BigInt.zero()));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Transaction entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Transaction entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Transaction", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Transaction | null {
+    return changetype<Transaction | null>(store.get("Transaction", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value!.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class Pair extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Pair entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Pair entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Pair", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Pair | null {
+    return changetype<Pair | null>(store.get("Pair", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get token0(): string | null {
+    let value = this.get("token0");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set token0(value: string | null) {
+    if (!value) {
+      this.unset("token0");
+    } else {
+      this.set("token0", Value.fromString(<string>value));
+    }
+  }
+
+  get token1(): string | null {
+    let value = this.get("token1");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set token1(value: string | null) {
+    if (!value) {
+      this.unset("token1");
+    } else {
+      this.set("token1", Value.fromString(<string>value));
     }
   }
 }
@@ -293,8 +432,8 @@ export class AddLiquidity extends Entity {
     }
   }
 
-  get blockTimestamp(): BigInt | null {
-    let value = this.get("blockTimestamp");
+  get timestamp(): BigInt | null {
+    let value = this.get("timestamp");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -302,11 +441,11 @@ export class AddLiquidity extends Entity {
     }
   }
 
-  set blockTimestamp(value: BigInt | null) {
+  set timestamp(value: BigInt | null) {
     if (!value) {
-      this.unset("blockTimestamp");
+      this.unset("timestamp");
     } else {
-      this.set("blockTimestamp", Value.fromBigInt(<BigInt>value));
+      this.set("timestamp", Value.fromBigInt(<BigInt>value));
     }
   }
 

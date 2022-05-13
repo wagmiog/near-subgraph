@@ -1,5 +1,5 @@
 import { near, log, BigInt, json, JSONValueKind } from "@graphprotocol/graph-ts";
-import { Account, Swap, AddLiquidity } from "../generated/schema";
+import { Account, Swap, AddLiquidity, Transaction, Pair } from "../generated/schema";
 
 export function handleReceipt(receipt: near.ReceiptWithOutcome): void {
   const actions = receipt.receipt.actions;
@@ -31,27 +31,40 @@ function handleAction(
 
   if (functionCall.methodName == "swap") {
     const receiptId = receipt.id.toHexString();
-      accounts.signerId = receipt.signerId;
-      accounts.blockTimestamp = BigInt.fromU64(blockHeader.timestampNanosec/1000000000)
+    accounts.signerId = receipt.signerId;
+    accounts.timestamp = BigInt.fromU64(blockHeader.timestampNanosec/1000000000)
 
-      let logs = new Swap(`${receiptId}`);
-      if(outcome.logs[0]!=null){
+    let logs = new Swap(`${receiptId}`); // Initializing Swap entity
+    let transaction = new Transaction(`${receiptId}`); // Initializing Transaction entity
+    let pair = new Pair(`${receiptId}`); // Initializing Pair entity
+
+    if(outcome.logs[0]!= null){
+      let rawString = outcome.logs[0]
+      let splitString = rawString.split(' ')
+      // Filling Swap entity
         logs.id = receipt.signerId;
-        logs.output = outcome.logs[0]
-        logs.blockTimestamp = BigInt.fromU64(blockHeader.timestampNanosec/1000000000)
-        let rawString = outcome.logs[0]
-        let splitString = rawString.split(' ')
         logs.action = splitString[0].toString()
-        logs.firstTokenAmount = BigInt.fromString(splitString[1])
-        logs.firstToken = splitString[2].toString()
-        logs.secondTokenAmount = BigInt.fromString(splitString[4])
-        logs.secondToken = splitString[5].toString()
+        // Filling Transaction entity
+          transaction.id = receipt.signerId;
+          transaction.timestamp = BigInt.fromU64(blockHeader.timestampNanosec/1000000000)
+          transaction.save()
+        logs.transaction = transaction.id
+        logs.timestamp = BigInt.fromU64(blockHeader.timestampNanosec/1000000000)
+        // Filling Pair entity
+          pair.id = "1" // STILL TO BE DEFINED
+          pair.token0 = splitString[2].toString()
+          pair.token1 = splitString[5].toString()
+          pair.save()
+        logs.pair = pair.id
+        logs.from = receipt.signerId
+        logs.to = receipt.receiverId
+        logs.amount0In = BigInt.fromString(splitString[1])
+        logs.amount1In = BigInt.fromString("0")
+        logs.amount0Out = BigInt.fromString("0")
+        logs.amount1Out = BigInt.fromString(splitString[4])
+      logs.save()
+    }
 
-        logs.save()
-      }
-
-      accounts.swap.push(logs.id);
-      
   } else {
     log.info("Not processed - FunctionCall is: {}", [functionCall.methodName]);
   }
@@ -61,10 +74,10 @@ function handleAction(
       accounts.signerId = receipt.signerId;
 
       let liquidity = new AddLiquidity(`${receiptId}`);
-      if(outcome.logs[0]!=null){
+      if(outcome.logs[0]!= null){
         liquidity.id = receipt.signerId;
         liquidity.output = outcome.logs[0]
-        liquidity.blockTimestamp = BigInt.fromU64(blockHeader.timestampNanosec/1000000000)
+        liquidity.timestamp = BigInt.fromU64(blockHeader.timestampNanosec/1000000000)
         let rawString = outcome.logs[0]
         let splitString = rawString.split(' ')
         liquidity.functionCalled = functionCall.methodName
@@ -77,7 +90,6 @@ function handleAction(
 
         liquidity.save()
       }
-      accounts.liquidity.push(liquidity.id);
   } else {
     log.info("Not processed - FunctionCall is: {}", [functionCall.methodName]);
   }
