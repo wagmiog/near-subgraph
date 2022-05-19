@@ -18,5 +18,9 @@ dataSources:
         - Account
         - Swap
         - AddLiquidity
+        - Transaction
+        - Pair
+        - Token
+        - LiquidityPosition
       receiptHandlers:
         - handler: handleReceipt
