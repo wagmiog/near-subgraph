@@ -1,4 +1,4 @@
-specVersion: 0.0.4
+specVersion: 0.0.5
 description: Pangolin Near
 repository: https://github.com/antiyro/pangolinNear.git
 schema:
@@ -9,7 +9,7 @@ dataSources:
     network: near-mainnet
     source:
       account: v2.ref-finance.near
-      startBlock: 45752813
+      startBlock: 65489310
     mapping:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
@@ -18,5 +18,9 @@ dataSources:
         - Account
         - Swap
         - AddLiquidity
+        - Transaction
+        - Pair
+        - Token
+        - LiquidityPosition
       receiptHandlers:
         - handler: handleReceipt
